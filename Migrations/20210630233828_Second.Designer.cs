@@ -9,8 +9,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Alvin_P2_AP2.Migrations
 {
     [DbContext(typeof(Contexto))]
-    [Migration("20210630032138_Inicial")]
-    partial class Inicial
+    [Migration("20210630233828_Second")]
+    partial class Second
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -47,6 +47,55 @@ namespace Alvin_P2_AP2.Migrations
                             ClienteId = 3,
                             Nombres = "PRESTAMOS CEFIPROD"
                         });
+                });
+
+            modelBuilder.Entity("Alvin_P2_AP2.Models.Cobros", b =>
+                {
+                    b.Property<int>("CobroId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ClienteId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("Fecha")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Observaciones")
+                        .HasColumnType("TEXT");
+
+                    b.Property<double>("TotalCobrado")
+                        .HasColumnType("REAL");
+
+                    b.HasKey("CobroId");
+
+                    b.HasIndex("ClienteId");
+
+                    b.ToTable("Cobros");
+                });
+
+            modelBuilder.Entity("Alvin_P2_AP2.Models.CobrosDetalle", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<double>("Cobrado")
+                        .HasColumnType("REAL");
+
+                    b.Property<int>("CobroId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("VentaId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CobroId");
+
+                    b.HasIndex("VentaId");
+
+                    b.ToTable("CobrosDetalle");
                 });
 
             modelBuilder.Entity("Alvin_P2_AP2.Models.Ventas", b =>
@@ -124,15 +173,57 @@ namespace Alvin_P2_AP2.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Alvin_P2_AP2.Models.Ventas", b =>
+            modelBuilder.Entity("Alvin_P2_AP2.Models.Cobros", b =>
                 {
                     b.HasOne("Alvin_P2_AP2.Models.Clientes", "Cliente")
-                        .WithMany()
+                        .WithMany("Cobro")
                         .HasForeignKey("ClienteId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Cliente");
+                });
+
+            modelBuilder.Entity("Alvin_P2_AP2.Models.CobrosDetalle", b =>
+                {
+                    b.HasOne("Alvin_P2_AP2.Models.Cobros", "Cobro")
+                        .WithMany("Detalle")
+                        .HasForeignKey("CobroId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Alvin_P2_AP2.Models.Ventas", "Venta")
+                        .WithMany()
+                        .HasForeignKey("VentaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cobro");
+
+                    b.Navigation("Venta");
+                });
+
+            modelBuilder.Entity("Alvin_P2_AP2.Models.Ventas", b =>
+                {
+                    b.HasOne("Alvin_P2_AP2.Models.Clientes", "Cliente")
+                        .WithMany("Venta")
+                        .HasForeignKey("ClienteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Cliente");
+                });
+
+            modelBuilder.Entity("Alvin_P2_AP2.Models.Clientes", b =>
+                {
+                    b.Navigation("Cobro");
+
+                    b.Navigation("Venta");
+                });
+
+            modelBuilder.Entity("Alvin_P2_AP2.Models.Cobros", b =>
+                {
+                    b.Navigation("Detalle");
                 });
 #pragma warning restore 612, 618
         }

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Alvin_P2_AP2.Migrations
 {
     public partial class Inicial : Migration
-    {   
+    {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
@@ -18,6 +18,28 @@ namespace Alvin_P2_AP2.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Clientes", x => x.ClienteId);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Cobros",
+                columns: table => new
+                {
+                    CobroId = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Fecha = table.Column<DateTime>(type: "TEXT", nullable: false),
+                    ClienteId = table.Column<int>(type: "INTEGER", nullable: false),
+                    TotalCobrado = table.Column<double>(type: "REAL", nullable: false),
+                    Observaciones = table.Column<string>(type: "TEXT", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Cobros", x => x.CobroId);
+                    table.ForeignKey(
+                        name: "FK_Cobros_Clientes_ClienteId",
+                        column: x => x.ClienteId,
+                        principalTable: "Clientes",
+                        principalColumn: "ClienteId",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -40,6 +62,40 @@ namespace Alvin_P2_AP2.Migrations
                         principalTable: "Clientes",
                         principalColumn: "ClienteId",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "CobrosDetalle",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    CobroId = table.Column<int>(type: "INTEGER", nullable: false),
+                    VentaId = table.Column<int>(type: "INTEGER", nullable: false),
+                    VentaId1 = table.Column<int>(type: "INTEGER", nullable: true),
+                    Cobrado = table.Column<double>(type: "REAL", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CobrosDetalle", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_CobrosDetalle_Cobros_CobroId",
+                        column: x => x.CobroId,
+                        principalTable: "Cobros",
+                        principalColumn: "CobroId",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CobrosDetalle_CobrosDetalle_VentaId",
+                        column: x => x.VentaId,
+                        principalTable: "CobrosDetalle",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_CobrosDetalle_Ventas_VentaId1",
+                        column: x => x.VentaId1,
+                        principalTable: "Ventas",
+                        principalColumn: "VentaId",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.InsertData(
@@ -88,6 +144,26 @@ namespace Alvin_P2_AP2.Migrations
                 values: new object[] { 6, 1900.0, 3, new DateTime(2020, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), 2900.0 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_Cobros_ClienteId",
+                table: "Cobros",
+                column: "ClienteId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CobrosDetalle_CobroId",
+                table: "CobrosDetalle",
+                column: "CobroId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CobrosDetalle_VentaId",
+                table: "CobrosDetalle",
+                column: "VentaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_CobrosDetalle_VentaId1",
+                table: "CobrosDetalle",
+                column: "VentaId1");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Ventas_ClienteId",
                 table: "Ventas",
                 column: "ClienteId");
@@ -95,6 +171,12 @@ namespace Alvin_P2_AP2.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "CobrosDetalle");
+
+            migrationBuilder.DropTable(
+                name: "Cobros");
+
             migrationBuilder.DropTable(
                 name: "Ventas");
 

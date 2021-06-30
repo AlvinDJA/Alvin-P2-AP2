@@ -3,14 +3,16 @@ using System;
 using Alvin_P2_AP2.DAL;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Alvin_P2_AP2.Migrations
 {
     [DbContext(typeof(Contexto))]
-    partial class ContextoModelSnapshot : ModelSnapshot
+    [Migration("20210630232210_Inicial")]
+    partial class Inicial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -87,11 +89,16 @@ namespace Alvin_P2_AP2.Migrations
                     b.Property<int>("VentaId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("VentaId1")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
                     b.HasIndex("CobroId");
 
                     b.HasIndex("VentaId");
+
+                    b.HasIndex("VentaId1");
 
                     b.ToTable("CobrosDetalle");
                 });
@@ -190,11 +197,15 @@ namespace Alvin_P2_AP2.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Alvin_P2_AP2.Models.Ventas", "Venta")
-                        .WithMany()
+                    b.HasOne("Alvin_P2_AP2.Models.CobrosDetalle", null)
+                        .WithMany("Detalle")
                         .HasForeignKey("VentaId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Alvin_P2_AP2.Models.Ventas", "Venta")
+                        .WithMany()
+                        .HasForeignKey("VentaId1");
 
                     b.Navigation("Cobro");
 
@@ -220,6 +231,11 @@ namespace Alvin_P2_AP2.Migrations
                 });
 
             modelBuilder.Entity("Alvin_P2_AP2.Models.Cobros", b =>
+                {
+                    b.Navigation("Detalle");
+                });
+
+            modelBuilder.Entity("Alvin_P2_AP2.Models.CobrosDetalle", b =>
                 {
                     b.Navigation("Detalle");
                 });
