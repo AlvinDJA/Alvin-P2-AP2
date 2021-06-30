@@ -1,0 +1,56 @@
+﻿@page "/cVentas"
+@inject IToastService toast
+
+
+<EditForm Model="Ventas" OnValidSubmit="BuscarVentas">
+    <DataAnnotationsValidator />
+    <div class="container-fluid">
+        <div class="card shadow-lg">
+
+            <div class="card-header">
+                <h3>Consulta de Ventas</h3>
+            </div>
+
+            <table class="table table-secondary">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Id:</th>
+                        <th>Fecha:</th>
+                        <th>Cliente:</th>
+                        <th>Monto:</th>
+                        <th>Balance:</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-transparent">
+                    @foreach (var item in Ventas)
+                    {
+                        <tr>
+                            <td>@item.VentaId</td>
+                            <td>@item.Fecha.ToShortDateString()</td>
+                            <td>@item.Cliente.Nombres</td>
+                            <td>@item.Monto </td>
+                            <td> @item.Balance </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private List<Ventas> Ventas = new List<Ventas>() { };
+
+    protected override void OnInitialized()
+    {
+        BuscarVentas();
+    }
+
+    private void BuscarVentas()
+    {
+        var encontrado = VentasBLL.GetList();
+        if (encontrado != null)
+            this.Ventas = encontrado;
+    }
+
+}

@@ -1,0 +1,19 @@
+﻿@inherits LayoutComponentBase
+@using Blazored.Toast.Configuration
+<BlazoredToasts Position="ToastPosition.TopRight"
+                Timeout="5"
+                IconType="IconType.FontAwesome"
+                SuccessClass="success-toast-override"
+                SuccessIcon="fa fa-check"
+                ErrorIcon="fa fa-times"
+                InfoIcon="fa fa-info"
+                WarningIcon="fa fa-warning" />
+<div class="sidebar" style="background: linear-gradient(to bottom, #333399 0%, #00ffcc 100%);">
+    <NavMenu />
+</div>
+
+<div class="main">
+    <div class="content px-4">
+        @Body
+    </div>
+</div>
