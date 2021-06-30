@@ -9,6 +9,7 @@ namespace Alvin_P2_AP2.BLL
 {
     public class VentasBLL
     {
+       
         public static List<Ventas> GetList()
         {
             List<Ventas> lista = new List<Ventas>();
