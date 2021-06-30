@@ -14,11 +14,11 @@
                 <form>
                     <div class="form-group form-inline">
                         <div class="form-group col-6">
-                            <label> Venta Id: </label>
+                            <label> Cobro Id: </label>
                             <div class="input-group">
-                                <input class="form-control col-4" />
+                                <InputNumber @bind-Value="Cobro.CobroId" class="form-control col-4" />
                                 <div class="input-group-append" display: inline-block>
-                                    <button type="button" class="btn btn-primary input-group-text">
+                                    <button type="button" class="btn btn-primary input-group-text" @onclick="Buscar">
                                         <i class="oi oi-magnifying-glass mr-2" /> Buscar
                                     </button>
                                 </div>
@@ -27,18 +27,22 @@
 
                         <div class="form-group col-6">
                             <label>Fecha: </label>
-                            <input  class="form-control" />
+                            <InputDate @bind-Value="Cobro.Fecha" class="form-control" />
                         </div>
                     </div>
 
                     <div class="form-group">
                         <label>Cliente:</label>
-                        <select class="form-control">
+                        <select @bind="ClienteSeleccionado" class="form-control" @onclick="ObtenerVentas">
                             <option value="0" disabled selected>Seleccione un cliente</option>
-
+                            @foreach (var item in ListaClientes)
+                            {
+                                <option value="@item.ClienteId">@item.Nombres</option>
+                            }
                         </select>
                     </div>
-                    <div class="table-responsive text-nowrap" style="position: relative; height:200px; overflow: auto; display: block;">
+
+                    <div class="table-responsive text-nowrap" style="position: relative; height:300px; overflow: auto; display: block;">
                         <label>Facturas Pendientes:</label>
                         <table class="table table-striped">
                             <thead>
@@ -52,6 +56,17 @@
                                 </tr>
                             </thead>
                             <tbody style="background-color: white;">
+                                @foreach (var item in Cobro.Detalle)
+                                {
+                                    <tr>
+                                        <td>@item.VentaId</td>
+                                        <td>@item.Venta.Fecha.ToString("dd/MM/yyyy")</td>
+                                        <td>@item.Venta.Monto.ToString("N2")</td>
+                                        <td>@item.Venta.Balance.ToString("N2")</td>
+                                        <td><InputNumber @bind-Value="item.Cobrado" class="form-control col-3" @onchange="ActualizarTotales" /></td>
+                                        <td> <input type="checkbox" @onchange="eventArgs => { RealizarCobro(item.Venta, eventArgs.Value); }" /></td>
+                                    </tr>
+                                }
                             </tbody>
                         </table>
                     </div>
@@ -60,29 +75,29 @@
                     <div class=" form-group form-inline">
                         <div class="form-group col-6">
                             <label>Totales: </label>
-                            <span class="form-control">100</span>
+                            <span class="form-control">@Cobro.Detalle.Count()</span>
                         </div>
                         <div class="form-group col-6">
                             <label>Total cobrado: </label>
-                            <input class="form-control" readOnly="true" />
+                            <InputNumber @bind-Value="Cobro.TotalCobrado" class="form-control" readOnly="true" />
                         </div>
                     </div>
                     <div class="form-group ">
                         <label>Observaciones</label>
-                        <textarea class="form-control" row="5" placeholder="Observaciones" />
+                        <textarea @bind="Cobro.Observaciones" class="form-control" row="5" placeholder="Observaciones" />
                     </div>
                 </form>
             </div>
 
             <div class="card-footer">
                 <div class="form-group text-center" display: inline-block>
-                    <button type="button" class="btn btn-lg btn-primary">
+                    <button type="button" class="btn btn-lg btn-primary" @onclick="Nuevo">
                         <i class="oi oi-file mr-2" />Nuevo
                     </button>
                     <button type="submit" class="btn btn-lg btn-success">
-                        <i class="oi oi-account-login" style="transform:rotate(90deg)" /> Guardar
+                        <i class="oi oi-account-login" style="transform:rotate(90deg)" @onclick="Guardar" /> Guardar
                     </button>
-                    <button type="button" class="btn btn-lg btn-danger">
+                    <button type="button" class="btn btn-lg btn-danger" @onclick="Eliminar">
                         <i class="oi oi-trash mr-2" />Eliminar
                     </button>
                 </div>
@@ -93,9 +108,77 @@
 
 @code
 {
-    public Ventas Cobro = new Ventas();
+    List<Clientes> ListaClientes;
+    public Cobros Cobro = new Cobros();
+    public int ClienteSeleccionado { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Nuevo();
+    }
+    public void Nuevo()
+    {
+        ListaClientes = ClientesBLL.GetList();
+        Cobro = new Cobros();
+        ClienteSeleccionado = 0;
+    }
+    public void Buscar()
+    {
+        var buscada = CobrosBLL.Buscar(Cobro.CobroId);
+
+        if (buscada != null)
+        {
+            this.Cobro = buscada;
+            ClienteSeleccionado = buscada.ClienteId;
+        }
+        else
+            Toast.ShowError("El cobro no fue encontrado");
+    }
     public void Guardar()
     {
 
+        bool guardado;
+        Cobro.ClienteId = ClienteSeleccionado;
+        Cobro.Detalle.RemoveAll(d => d.Cobrado == 0);
+        guardado = CobrosBLL.Guardar(Cobro);
+        if (guardado)
+        {
+            Toast.ShowSuccess("Guardado correctamente");
+            Nuevo();
+        }
+        else
+            Toast.ShowError("No se pudo guardar correctamente");
     }
+    public void Eliminar()
+    {
+        bool eliminado = CobrosBLL.Eliminar(Cobro.CobroId);
+
+        if (eliminado)
+        {
+            Nuevo();
+            Toast.ShowSuccess("Eliminado correctamente");
+        }
+        else
+            Toast.ShowError("No fue posible eliminar");
+    }
+    public void ObtenerVentas()
+    {
+        if (ClientesBLL.Buscar(ClienteSeleccionado) != null)
+            Cobro.Detalle = CobrosBLL.GetVentasPendientes(ClienteSeleccionado);
+    }
+    public void ActualizarTotales()
+    {
+
+    }
+    public void RealizarCobro(Ventas venta, object valor)
+    {
+        var detalle = Cobro.Detalle.Find(d => d.VentaId == venta.VentaId);
+
+        if (detalle != null && (bool)valor)
+            detalle.Cobrado = (float)venta.Balance;
+        else
+            detalle.Cobrado = 0;
+
+    }
+
 }
