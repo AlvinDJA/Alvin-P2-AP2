@@ -126,9 +126,10 @@ namespace Alvin_P2_AP2.BLL
             try
             {
                 cobro = contexto.Cobros
-                    .Include(e => e.Detalle)
+                    .Include(x => x.Detalle)
+                    .ThenInclude(x => x.Venta)
                     .Include(x => x.Cliente)
-                    .Where(e => e.CobroId == id)
+                    .Where(x => x.CobroId == id)
                     .FirstOrDefault();
             }
             catch (Exception)
