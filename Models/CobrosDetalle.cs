@@ -18,7 +18,5 @@ namespace Alvin_P2_AP2.Models
 
         public double Cobrado { get; set; }
 
-        [ForeignKey("VentaId")]
-        public virtual List<CobrosDetalle> Detalle { get; set; } = new List<CobrosDetalle>();
     }
 }
