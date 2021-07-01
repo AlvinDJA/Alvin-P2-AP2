@@ -68,17 +68,29 @@ namespace Alvin_P2_AP2.BLL
         {
             bool Modificado = false;
             Contexto contexto = new Contexto();
-
             try
             {
-                foreach (var item in cobro.Detalle)
+                List<CobrosDetalle> detalle = Buscar(cobro.CobroId).Detalle;
+                foreach (CobrosDetalle m in detalle)
                 {
-                    item.Venta = contexto.Ventas.Find(item.VentaId);
-                    item.Venta.Balance = item.Venta.Monto - item.Cobrado;
-                    contexto.Entry(item.Venta).State = EntityState.Modified;
+                    m.Venta = contexto.Ventas.Find(m.VentaId);
+                    m.Venta.Balance += m.Cobrado;
+                    contexto.Entry(m.Venta).State = EntityState.Modified;
                 }
-                contexto.Cobros.Add(cobro);
-                Modificado = (contexto.SaveChanges() > 0);
+                contexto.Database.ExecuteSqlRaw($"Delete FROM CobrosDetalle Where CobroId={cobro.CobroId}");
+                foreach (var item in cobro.Detalle)
+                    contexto.Entry(item).State = EntityState.Added;
+
+                List<CobrosDetalle> nuevo = cobro.Detalle;
+                foreach (CobrosDetalle m in nuevo)
+                {
+                    m.Venta = contexto.Ventas.Find(m.VentaId);
+                    m.Venta.Balance = m.Venta.Monto - m.Cobrado;
+                    contexto.Entry(m.Venta).State = EntityState.Modified;
+                }
+                
+                contexto.Entry(cobro).State = EntityState.Modified;
+                Modificado = contexto.SaveChanges() > 0;
             }
             catch (Exception)
             {
@@ -94,14 +106,13 @@ namespace Alvin_P2_AP2.BLL
         {
             bool Eliminado = false;
             Contexto contexto = new Contexto();
-
             try
             {
                 var cobro = Buscar(id);
                 foreach (var item in cobro.Detalle)
                 {
                     item.Venta = contexto.Ventas.Find(item.VentaId);
-                    item.Venta.Balance = item.Venta.Monto;
+                    item.Venta.Balance += item.Cobrado;
                     contexto.Entry(item.Venta).State = EntityState.Modified;
                 }
                 contexto.Entry(cobro).State = EntityState.Deleted;
