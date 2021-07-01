@@ -1,0 +1,74 @@
+﻿@page "/cCobros"
+@inject IToastService toast
+
+<EditForm Model="Cobros" OnValidSubmit="BuscarCobros">
+    <DataAnnotationsValidator />
+    <div class="container-fluid">
+        <div class="card shadow-lg">
+            <div class="card ">
+                <div class="card-header">
+                    <h3>Consulta de Productos</h3>
+                </div>
+
+                <table class="table table-secondary">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th>Cobro Id:</th>
+                            <th>Fecha:</th>
+                            <th>Cliente:</th>
+                            <th>Total Cobrado:</th>
+                            <th>Observaciones:</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-transparent">
+                        @foreach (var item in Cobros)
+                        {
+                            <tr>
+                                <td>@item.CobroId</td>
+                                <td>@item.Fecha.ToString("dd/MM/yyyy")</td>
+                                <td>@item.Cliente.Nombres</td>
+                                <td>@item.TotalCobrado.ToString("N2")</td>
+                                <td>@item.Observaciones</td>
+
+                                <td class="text-center align-baseline">
+                                    <button type="button" class="btn btn-lg btn-danger" @onclick="() => Eliminar(item.CobroId)">
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private List<Cobros> Cobros = new List<Cobros>() { };
+
+    protected override void OnInitialized()
+    {
+        BuscarCobros();
+    }
+
+    private void BuscarCobros()
+    {
+        var encontrado = CobrosBLL.GetList(c => true);
+        if (encontrado != null)
+            this.Cobros = encontrado;
+    }
+    public void Eliminar(int id)
+    {
+        bool eliminado = CobrosBLL.Eliminar(id);
+
+        if (eliminado)
+        {
+            BuscarCobros();
+            toast.ShowSuccess("Eliminado correctamente");
+        }
+        else
+            toast.ShowError("No fue posible eliminar");
+    }
+
+}
