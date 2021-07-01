@@ -72,7 +72,6 @@ namespace Alvin_P2_AP2.Migrations
                         .Annotation("Sqlite:Autoincrement", true),
                     CobroId = table.Column<int>(type: "INTEGER", nullable: false),
                     VentaId = table.Column<int>(type: "INTEGER", nullable: false),
-                    VentaId1 = table.Column<int>(type: "INTEGER", nullable: true),
                     Cobrado = table.Column<double>(type: "REAL", nullable: false)
                 },
                 constraints: table =>
@@ -85,17 +84,11 @@ namespace Alvin_P2_AP2.Migrations
                         principalColumn: "CobroId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_CobrosDetalle_CobrosDetalle_VentaId",
+                        name: "FK_CobrosDetalle_Ventas_VentaId",
                         column: x => x.VentaId,
-                        principalTable: "CobrosDetalle",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_CobrosDetalle_Ventas_VentaId1",
-                        column: x => x.VentaId1,
                         principalTable: "Ventas",
                         principalColumn: "VentaId",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
@@ -157,11 +150,6 @@ namespace Alvin_P2_AP2.Migrations
                 name: "IX_CobrosDetalle_VentaId",
                 table: "CobrosDetalle",
                 column: "VentaId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_CobrosDetalle_VentaId1",
-                table: "CobrosDetalle",
-                column: "VentaId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Ventas_ClienteId",
