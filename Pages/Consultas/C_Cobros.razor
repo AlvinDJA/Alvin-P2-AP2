@@ -1,5 +1,6 @@
 ﻿@page "/cCobros"
 @inject IToastService toast
+@inject NavigationManager NavigationManager
 
 <EditForm Model="Cobros" OnValidSubmit="BuscarCobros">
     <DataAnnotationsValidator />
@@ -10,8 +11,8 @@
                     <h3>Consulta de Productos</h3>
                 </div>
 
-                <table class="table table-secondary">
-                    <thead class="thead-dark">
+                <table class="table table-striped">
+                    <thead >
                         <tr>
                             <th>Cobro Id:</th>
                             <th>Fecha:</th>
@@ -21,7 +22,7 @@
                             <th></th>
                         </tr>
                     </thead>
-                    <tbody class="bg-transparent">
+                    <tbody style="background-color: white;">
                         @foreach (var item in Cobros)
                         {
                             <tr>
@@ -32,7 +33,8 @@
                                 <td>@item.Observaciones</td>
 
                                 <td class="text-center align-baseline">
-                                    <button type="button" class="btn btn-lg btn-danger" @onclick="() => Eliminar(item.CobroId)">
+                                    <button type="button" class="btn btn-lg btn-primary small" @onclick="()=>IrACobros(item.CobroId)">
+                                        <i class="oi oi-eye small"/>
                                     </button>
                                 </td>
                             </tr>
@@ -50,6 +52,10 @@
     protected override void OnInitialized()
     {
         BuscarCobros();
+    }
+    private void IrACobros(int id)
+    {
+        NavigationManager.NavigateTo("rCobros/" + id);
     }
 
     private void BuscarCobros()

@@ -1,4 +1,6 @@
 ﻿@page "/rCobros"
+@page "/rCobros/{CobroId:int}"
+
 @inject IToastService Toast
 
 <EditForm Model="Cobro" OnValidSubmit="Guardar">
@@ -32,6 +34,7 @@
                     </div>
 
                     <div class="form-group">
+
                         <label>Cliente:</label>
                         <select @bind="ClienteSeleccionado" class="form-control" @onclick="ObtenerVentas">
                             <option value="0" disabled selected>Seleccione un cliente</option>
@@ -41,11 +44,7 @@
                             }
                         </select>
                     </div>
-                    <div class="form-group">
-                        <button type="button" class="btn btn-lg btn-primary" @onclick="ActualizarTotales">
-                            Actualizar
-                        </button>
-                    </div>
+
                     <div class="table-responsive text-nowrap" style="position: relative; height:300px; overflow: auto; display: block;">
                         <label>Facturas Pendientes:</label>
                         <table class="table table-striped">
@@ -67,7 +66,9 @@
                                         <td>@item.Venta.Fecha.ToString("dd/MM/yyyy")</td>
                                         <td>@item.Venta.Monto.ToString("N2")</td>
                                         <td>@item.Venta.Balance.ToString("N2")</td>
-                                        <td><InputNumber @bind-Value="item.Cobrado" class="form-control col-3" @onchange="ActualizarTotales" /></td>
+                                        <td>
+                                            <InputNumber @bind-Value="@item.Cobrado" class="form-control col-3" @oninput="ActualizarTotales" />
+                                        </td>
                                         <td> <input type="checkbox" @onchange="eventArgs => { RealizarCobro(item.Venta, eventArgs.Value); }" /></td>
                                     </tr>
                                 }
@@ -91,7 +92,7 @@
                         <textarea @bind="Cobro.Observaciones" class="form-control" row="5" placeholder="Observaciones" />
                     </div>
                 </form>
-        </div>
+            </div>
 
             <div class="card-footer">
                 <div class="form-group text-center" display: inline-block>
@@ -112,14 +113,22 @@
 
 @code
 {
+    [Parameter]
+    public int CobroId { get; set; }
+
     List<Clientes> ListaClientes;
-    public Cobros Cobro = new Cobros();
+    public Cobros Cobro;
     public int ClienteSeleccionado { get; set; }
     public double Total { get; set; }
 
     protected override void OnInitialized()
     {
         Nuevo();
+        if (CobroId != 0)
+        {
+            Cobro.CobroId = CobroId;
+            Buscar();
+        }
     }
     public void Nuevo()
     {
@@ -146,6 +155,7 @@
         bool guardado;
         Cobro.ClienteId = ClienteSeleccionado;
         Cobro.Detalle.RemoveAll(d => d.Cobrado == 0);
+        ActualizarTotales();
         guardado = CobrosBLL.Guardar(Cobro);
         if (guardado)
         {
@@ -177,7 +187,7 @@
         Total = 0;
         foreach (var item in Cobro.Detalle)
             Total += item.Cobrado;
-        Cobro.TotalCobrado = Total; 
+        Cobro.TotalCobrado = Total;
     }
     public void RealizarCobro(Ventas venta, object valor)
     {
@@ -187,7 +197,7 @@
             detalle.Cobrado = (float)venta.Balance;
         else
             detalle.Cobrado = 0;
-
+        ActualizarTotales();
     }
 
 }
